@@ -1,17 +1,24 @@
 import click
+import cloup
+from cloup import option, option_group
+from cloup.constraints import mutually_exclusive
 import os
 
-@click.command()
-@click.argument('dir_path', type=click.Path(exists=True))
-@click.option('-b', '--cobi', 'filename', flag_value='COBICAR.lobster', help='Read cobifile')
-@click.option('-h', '--cohp', 'filename', flag_value='COHPCAR.lobster', help='Read cohpfile')
-@click.option('-o', '--coop', 'filename', flag_value='COOPCAR.lobster', help='Read coopfile')
-@click.option('-a', '--all', 'all', flag_value=True, help='Process all relevant files')
+@cloup.command()
+@cloup.argument('dir_path', type=cloup.Path(exists=True))
+@option_group(
+    'Available files to process',
+    option('-b', '--cobi', 'filename', flag_value='COBICAR.lobster', help='Read cobifile'),
+    option('-h', '--cohp', 'filename', flag_value='COHPCAR.lobster', help='Read cohpfile'),
+    option('-o', '--coop', 'filename', flag_value='COOPCAR.lobster', help='Read coopfile'),
+    constraint=mutually_exclusive,
+)
+@cloup.option('-a', '--all', 'all', flag_value=True, help='Process all relevant files')
 def process(dir_path, filename, all):
     # if dir_path == '.':
     #     click.echo('amigo no me diste un directorio')
     if filename == None:
-        click.echo('No filename specified')
+        click.echo('No filename flag specified')
         return
     
     if all:
