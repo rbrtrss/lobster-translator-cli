@@ -8,6 +8,10 @@ packages = [{include = "lobster_translator_cli"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
+click = "^8.1.7"
+
+[tool.poetry.scripts]
+process = "lobster_translator_cli.cli:process"
 
 
 [build-system]
