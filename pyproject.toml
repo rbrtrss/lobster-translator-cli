@@ -10,7 +10,7 @@ packages = [{include = "lobster_translator_cli"}]
 python = "^3.11"
 click = "^8.1.7"
 cloup = "^3.0.4"
-lobster-translator = "^0.3.0"
+lobster-translator = "^0.4.0"
 
 [tool.poetry.scripts]
 process = "lobster_translator_cli.cli:process"

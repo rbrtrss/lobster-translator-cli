@@ -1,5 +1,6 @@
 import cloup
 import os
+from lobster_translator.io import carfile_to_df, listfile_to_df
 
 FILE_TYPES = ["car", "list"]
 INDEX_TYPES = ["cohp", "cobi", "coop"]
@@ -29,11 +30,19 @@ def process(dir_path, subdir, file_type, index_type):
     else:
         index_arr = [index_type]
     # End catch all inputs
-    
-    # print(working_paths)
-    
     full_filepaths = gen_filenames_dict(working_paths, files_arr, index_arr)
-    print(list(full_filepaths.values()))
+
+    for file in files_arr:
+        if file == "car":
+            print(lobster_car_to_string(full_filepaths, index_arr))
+        # elif file == "list":
+        #     # print("process list")
+        # else:
+        #     raise Exception("Considering a non processable file type")
+
+
+    # print(full_filepaths['list'])
+
 
 def gen_filenames_dict(paths_arr, files_arr, index_arr):
     return { f : [create_if_exists(p, f, i) for p in paths_arr for i in index_arr ] for f in files_arr }
@@ -53,9 +62,18 @@ def create_if_exists(path, file, index):
     
     return full_filepath
 
-
 def build_filename(file, index):
     filename = (index + file).upper() + ".lobster"
     if file == "list":
         filename = "I" + filename
     return filename
+
+def lobster_car_to_string(lobster_dict, index_arr):
+    out_arr = []
+    car_arr = lobster_dict["car"]
+    for c in car_arr:
+        for i in index_arr:
+            out_arr.append(f'# {i} \n' + carfile_to_df(c).to_csv(sep=','))
+    
+    return '\n\n'.join(out_arr)
+            
