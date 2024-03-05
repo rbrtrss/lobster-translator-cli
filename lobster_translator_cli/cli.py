@@ -1,68 +1,52 @@
-# import click
 import cloup
-from cloup import option, option_group, constraint
-from cloup.constraints import mutually_exclusive, RequireExactly
 import os
 
-ORIGIN = ['car', 'list']
-INDICES = ['cobi', 'cohp', 'coop']
-
-origin_options = option_group(
-    'Choose between carfiles or listfiles',
-    option('--todo', 'filetype', help='Read all files'),
-    option('-c', '--carfile', 'filetype', help='Read carfiles'),
-    option('-l', '--listfile', 'filetype', help='Read listfiles'),
-    # constraint=RequireExactly(1)
-)
-
-index_options = option_group(
-    'Available files to process',
-    option('--mucho', 'filename', help='Read all indices'),
-    option('-b', '--cobi', 'filename', help='Read cobifile'),
-    option('-h', '--cohp', 'filename', help='Read cohpfile'),
-    option('-o', '--coop', 'filename', help='Read coopfile'),
-)
+FILE_TYPES = ["car", "list"]
+INDEX_TYPES = ["cohp", "cobi", "coop"]
 
 @cloup.command()
-@cloup.argument('dir_path', type=cloup.Path(exists=True))
-@origin_options
-@index_options
-# @option_group(
-#     'Choose between carfiles or listfiles',
-#     option('--todo', 'filetype', flag_value=ORIGIN, help='Read all files'),
-#     option('-c', '--carfile', 'filetype', flag_value=[ORIGIN[0]], help='Read carfiles'),
-#     option('-l', '--listfile', 'filetype', flag_value=[ORIGIN[1]], help='Read listfiles'),
-#     constraint=RequireExactly(1)
-# )
-# @option_group(
-#     'Available files to process',
-#     option('--mucho', 'filename', flag_value=INDICES, help='Read all indices'),
-#     option('-b', '--cobi', 'filename', flag_value=[INDICES[0]], help='Read cobifile'),
-#     option('-h', '--cohp', 'filename', flag_value=[INDICES[1]], help='Read cohpfile'),
-#     option('-o', '--coop', 'filename', flag_value=[INDICES[2]], help='Read coopfile'),
-# )
-# @cloup.option('-a', '--all', 'all', flag_value=True, help='Process all relevant files')
-def process(dir_path, filetype, filename):
-    # if dir_path == '.':
-    #     print('amigo no me diste un directorio')
-    print(f'Dirpath is {os.path.abspath(dir_path)}')
-    print(f'Filetype is {filetype}')
-    print(f'Filename is {filename}')
-    # if filename == None:
-    #     print('No filename flag specified')
-    #     return
+@cloup.argument('dir_path', type=cloup.Path(resolve_path=True))
+@cloup.option("--subdir / --singledir", "-r / ", default=False)
+@cloup.option("--file_type", "-f", type=cloup.Choice(FILE_TYPES))
+@cloup.option("--index_type", "-i", type=cloup.Choice(INDEX_TYPES))
+def process(dir_path, subdir, file_type, index_type):
+    """
+    When do we print this?
+    """
+    # Catch all inputs
+    if subdir:
+        working_paths = gen_subdirs_arr(dir_path)
+    else:
+        working_paths = [dir_path]
 
-    # absolute_path = os.path.abspath(dir_path)
+    if file_type == None:
+        files_arr = FILE_TYPES
+    else:
+        files_arr = [file_type]
 
-    # if file_exists(absolute_path, filename):
-    #     print(f'{filename} is present in {absolute_path}')
-    # else:
-    #     print(f'{filename} is not present in {absolute_path}')
+    if index_type == None:
+        index_arr = INDEX_TYPES
+    else:
+        index_arr = [index_type]
+    # End catch all inputs
+    
+    print(working_paths)
+    
+    both = gen_filenames_dict(working_paths, files_arr, index_arr)
+    print(both['list'])
+
+def gen_filenames_dict(paths_arr, files_arr, index_arr):
+    return { f : [os.path.join(p,build_filename(f,i)) for p in paths_arr for i in index_arr ] for f in files_arr }
 
 
-if __name__ == '__main__':
-    process()
+def gen_filenames_arr(paths_arr, files_arr, index_arr):
+    return [ [ os.path.join(p,build_filename(f,i)) for i in index_arr ] for f in files_arr for p in paths_arr] # inner on filetype
 
-def file_exists(dir_path, filename):
-    items = os.listdir(dir_path)
-    return filename in items
+def gen_subdirs_arr(dir_path):
+    return [os.path.join(dir_path,d) for d in os.listdir(dir_path) if os.path.isdir(os.path.join(dir_path, d))]
+
+def build_filename(file, index):
+    filename = (index + file).upper() + ".lobster"
+    if file == "list":
+        filename = "I" + filename
+    return filename
