@@ -30,13 +30,14 @@ def process(dir_path, subdir, file_type, index_type):
         index_arr = [index_type]
     # End catch all inputs
     
-    print(working_paths)
+    # print(working_paths)
     
-    both = gen_filenames_dict(working_paths, files_arr, index_arr)
-    print(both['list'])
+    full_filepaths = gen_filenames_dict(working_paths, files_arr, index_arr)
+    print(list(full_filepaths.values()))
 
 def gen_filenames_dict(paths_arr, files_arr, index_arr):
-    return { f : [os.path.join(p,build_filename(f,i)) for p in paths_arr for i in index_arr ] for f in files_arr }
+    return { f : [create_if_exists(p, f, i) for p in paths_arr for i in index_arr ] for f in files_arr }
+    # return { f : [os.path.join(p,build_filename(f,i)) for p in paths_arr for i in index_arr ] for f in files_arr }
 
 
 def gen_filenames_arr(paths_arr, files_arr, index_arr):
@@ -44,6 +45,14 @@ def gen_filenames_arr(paths_arr, files_arr, index_arr):
 
 def gen_subdirs_arr(dir_path):
     return [os.path.join(dir_path,d) for d in os.listdir(dir_path) if os.path.isdir(os.path.join(dir_path, d))]
+
+def create_if_exists(path, file, index):
+    full_filepath = os.path.join(path,build_filename(file,index))
+    if not os.path.exists(full_filepath):
+        raise FileNotFoundError(f"The {full_filepath} does not exist")
+    
+    return full_filepath
+
 
 def build_filename(file, index):
     filename = (index + file).upper() + ".lobster"
