@@ -1,6 +1,7 @@
 import cloup
 import os
 from .io import carfile_to_df, listfile_to_df
+import pandas as pd
 
 FILE_TYPES = ["car", "list"]
 INDEX_TYPES = ["cohp", "cobi", "coop"]
@@ -36,8 +37,7 @@ def process(dir_path, subdir, file_type, index_type):
         if file == "car":
             print(lobster_car_to_string(full_filepaths, index_arr))
         elif file == "list":
-            _, df = listfile_to_df(full_filepaths['list'][0])
-            print(df.T)
+            print(lobster_list_to_string(full_filepaths, index_arr))
         # else:
         #     raise Exception("Considering a non processable file type")
 
@@ -78,4 +78,16 @@ def lobster_car_to_string(lobster_dict, index_arr):
     
     return '\n\n'.join(out_arr)
 
-# def lobster_list_to_string(lobster_dict, index_arr):
+def lobster_list_to_string(lobster_dict, index_arr):
+    updated_index = [ 'i' + index for index in index_arr ]
+    out_dict = { i : [] for i in updated_index }
+    # out_dict = {}
+    list_arr = lobster_dict["list"]
+    for list in list_arr:
+        indicator, df = listfile_to_df(list)
+        out_dict[indicator].append(df)
+        # out_arr.append(index_arr[i])
+    
+    casi_dict = { k : pd.concat(v) for k,v in out_dict.items()}
+    # return "\n\n".join(out_arr)
+    return f"{casi_dict["icobi"]}"

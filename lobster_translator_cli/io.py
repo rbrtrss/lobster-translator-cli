@@ -42,9 +42,21 @@ def listfile_to_df(input_path: str):
     structure = input_path.split('/')[-2]
     df = pd.read_csv(input_path, sep=r'\s+', engine='python', skiprows=1, header=None)
     indicator = get_indicator_from_path(input_path)
-    df['structure'] = structure
+    # df['structure'] = structure
     df['interaction'] = df[1] + df[2]
-    df[indicator] = df[7]
-    df['distance'] = df[3]
-    return indicator, df[['structure','interaction',indicator, 'distance']]
+    df[structure] = df[7]
+    # df['distance'] = df[3]
+    return indicator, df[["interaction", structure]]
 
+# def listfile_to_df(input_path: str):
+#     """
+#     To read ICOBILIST.lobster, ICOHPLIST.lobster or ICOOPLIST.lobster and collect in pd.DataFrame
+#     """
+#     structure = input_path.split('/')[-2]
+#     df = pd.read_csv(input_path, sep=r'\s+', engine='python', skiprows=1, header=None)
+#     indicator = get_indicator_from_path(input_path)
+#     df['structure'] = structure
+#     df['interaction'] = df[1] + df[2]
+#     df[indicator] = df[7]
+#     df['distance'] = df[3]
+#     return indicator, df[['structure','interaction',indicator, 'distance']]

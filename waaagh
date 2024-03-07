@@ -1,7 +1,0 @@
-                  0        1        2   ...       20       21       22
-structure     image1   image1   image1  ...   image1   image1   image1
-interaction    P57N1    P57C3   P57P56  ...     C5C4     C5H9    C4H11
-icohp       -6.55024 -0.10271 -4.87154  ... -9.04094 -5.66111 -5.83195
-distance     1.74782  3.83658  2.22007  ...  1.40417  1.09386  1.09433
-
-[4 rows x 23 columns]
