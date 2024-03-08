@@ -42,11 +42,13 @@ def listfile_to_df(input_path: str):
     structure = input_path.split('/')[-2]
     df = pd.read_csv(input_path, sep=r'\s+', engine='python', skiprows=1, header=None)
     indicator = get_indicator_from_path(input_path)
-    # df['structure'] = structure
+    df['structure'] = structure
     df['interaction'] = df[1] + df[2]
-    df[structure] = df[7]
+    df[indicator] = df[7]
     # df['distance'] = df[3]
-    return indicator, df[["interaction", structure]]
+    out_df = df[['interaction',structure]]
+    # out_df.set_index('interaction')
+    return indicator, out_df
 
 # def listfile_to_df(input_path: str):
 #     """

@@ -85,9 +85,9 @@ def lobster_list_to_string(lobster_dict, index_arr):
     list_arr = lobster_dict["list"]
     for list in list_arr:
         indicator, df = listfile_to_df(list)
-        out_dict[indicator].append(df)
+        out_dict[indicator].append(df.T)
         # out_arr.append(index_arr[i])
     
-    casi_dict = { k : pd.concat(v) for k,v in out_dict.items()}
+    casi_dict = { k : pd.concat(v, ignore_index=True) for k,v in out_dict.items()}
     # return "\n\n".join(out_arr)
     return f"{casi_dict["icobi"]}"
