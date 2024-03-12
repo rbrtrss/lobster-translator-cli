@@ -1,6 +1,7 @@
 import cloup
 import os
 from .io import carfile_to_df, listfile_to_df
+from .helpers import prep_list_df
 import pandas as pd
 
 FILE_TYPES = ["car", "list"]
@@ -11,7 +12,8 @@ INDEX_TYPES = ["cohp", "cobi", "coop"]
 @cloup.option("--subdir / --singledir", "-r / ", default=False)
 @cloup.option("--file_type", "-f", type=cloup.Choice(FILE_TYPES))
 @cloup.option("--index_type", "-i", type=cloup.Choice(INDEX_TYPES))
-def process(dir_path, subdir, file_type, index_type):
+@cloup.option("--energy_range", "-e", nargs=2, type=float)
+def process(dir_path, subdir, file_type, index_type, energy_range):
     """
     When do we print this?
     """
@@ -35,19 +37,13 @@ def process(dir_path, subdir, file_type, index_type):
 
     for file in files_arr:
         if file == "car":
-            print(lobster_car_to_string(full_filepaths, index_arr))
+            print(lobster_car_to_string(full_filepaths, energy_range))
         elif file == "list":
             print(lobster_list_to_string(full_filepaths, index_arr))
-        # else:
-        #     raise Exception("Considering a non processable file type")
-
-
-    # print(full_filepaths['list'])
 
 
 def gen_filenames_dict(paths_arr, files_arr, index_arr):
     return { f : [create_if_exists(p, f, i) for p in paths_arr for i in index_arr ] for f in files_arr }
-    # return { f : [os.path.join(p,build_filename(f,i)) for p in paths_arr for i in index_arr ] for f in files_arr }
 
 
 def gen_filenames_arr(paths_arr, files_arr, index_arr):
@@ -69,25 +65,23 @@ def build_filename(file, index):
         filename = "I" + filename
     return filename
 
-def lobster_car_to_string(lobster_dict, index_arr):
+def lobster_car_to_string(lobster_dict, energy_range):
     out_arr = []
     car_arr = lobster_dict["car"]
-    for i in range(len(car_arr)):
-        structure, df = carfile_to_df(car_arr[i])
-        out_arr.append(f'# {index_arr[i]} {structure} \n' + df.to_csv(sep=',', index=None))
+    for car in car_arr:
+        indicator, structure, df = carfile_to_df(car, energy_range)
+        out_arr.append(f'# {indicator} {structure} \n' + df.to_csv(sep=',', index=None))
     
     return '\n\n'.join(out_arr)
 
 def lobster_list_to_string(lobster_dict, index_arr):
     updated_index = [ 'i' + index for index in index_arr ]
-    out_dict = { i : [] for i in updated_index }
-    # out_dict = {}
+    init_dict = { i : [] for i in updated_index }
     list_arr = lobster_dict["list"]
     for list in list_arr:
         indicator, df = listfile_to_df(list)
-        out_dict[indicator].append(df.T)
-        # out_arr.append(index_arr[i])
+        init_dict[indicator].append(df)
     
-    casi_dict = { k : pd.concat(v, ignore_index=True) for k,v in out_dict.items()}
-    # return "\n\n".join(out_arr)
-    return f"{casi_dict["icobi"]}"
+    out_dict = { k : prep_list_df(v) for k,v in init_dict.items()}
+    out_arr = [ f'# {k} \n' + v.to_csv(sep=',') for k, v in out_dict.items() ]
+    return "\n\n".join(out_arr)
