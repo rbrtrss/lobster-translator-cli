@@ -52,10 +52,25 @@ def listfile_to_df(input_path: str):
     if indicator == 'icohp':
         df[7] = -1 * df[7]
     df['indicator'] = df[7]
-    # df['distance'] = df[3]
+    # df['distance'] = df[3] see bellow listfile_distance_df function
     out_df = df[['structure', 'interaction', 'indicator']]
     # out_df.set_index('interaction')
     return indicator, out_df
+
+def listfile_distance_df(input_path: str):
+    """
+    To create a distance indicator from ICOXXLIST.lobster files (distance is in a different position hence the need for an special function)
+    """
+    structure = input_path.split('/')[-2]
+    df = pd.read_csv(input_path, sep=r'\s+', engine='python', skiprows=1, header=None)
+    indicator = 'distance'
+    df['structure'] = structure
+    df['interaction'] = df[1] + df[2]
+    df['indicator'] = df[3]
+    out_df = df[['structure', 'interaction', 'indicator']]
+    return indicator, out_df
+
+
 
 # def listfile_to_df(input_path: str):
 #     """

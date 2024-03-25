@@ -1,7 +1,7 @@
 import cloup
 import os
-from .io import carfile_to_df, listfile_to_df
-from .helpers import prep_list_df
+from .io import carfile_to_df, listfile_to_df, listfile_distance_df
+from .helpers import prep_list_df, keep_one_file_per_structure
 import pandas as pd
 
 FILE_TYPES = ["car", "list"]
@@ -76,10 +76,18 @@ def lobster_car_to_string(lobster_dict, energy_range):
 
 def lobster_list_to_string(lobster_dict, index_arr):
     updated_index = [ 'i' + index for index in index_arr ]
+    updated_index.append('distance') # Including distance
     init_dict = { i : [] for i in updated_index }
     list_arr = lobster_dict["list"]
     for list in list_arr:
         indicator, df = listfile_to_df(list)
+        init_dict[indicator].append(df)
+
+    # the following is for distance
+    only_one = keep_one_file_per_structure(list_arr)
+
+    for one in only_one:
+        indicator, df = listfile_distance_df(one)
         init_dict[indicator].append(df)
     
     out_dict = { k : prep_list_df(v) for k,v in init_dict.items()}

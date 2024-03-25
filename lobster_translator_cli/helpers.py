@@ -19,7 +19,7 @@ def get_list_indicator_from_path(path: str) -> str:
 
 def get_car_indicator_from_path(path: str) -> str:
     """
-    For ICOBILIST.lobster, ICOHPLIST.lobster, ICOOPLIST.lobster
+    For COBICAR.lobster, COHPCAR.lobster, COOPCAR.lobster
     """
     END_LEN = len("car.lobster")
     filename = path.split('/')[-1]
@@ -48,4 +48,20 @@ def filter_df_by_energy(df, e_low, e_high):
     Filter out dataframe rows outside energy bounds
     """
     out_df = df.copy()
-    return out_df[(e_low < out_df['E']) & (out_df['E'] < e_high)] # THis is ugly
+    return out_df[(e_low < out_df['E']) & (out_df['E'] < e_high)] # This is ugly
+
+def keep_one_file_per_structure(list_arr):
+    """
+    To catch distance we need to keep only one file for each structure
+    """
+    seen_structure = set()
+    to_keep = []
+
+    for p in list_arr:
+        structure = p.split('/')[-2]
+
+        if structure not in seen_structure:
+            seen_structure.add(structure)
+            to_keep.append(p)
+    
+    return to_keep
